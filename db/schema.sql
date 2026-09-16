@@ -88,6 +88,8 @@ CREATE TABLE IF NOT EXISTS partner_listings (
   phone VARCHAR(20) NULL,
   opening_time VARCHAR(20) NULL,
   closing_time VARCHAR(20) NULL,
+  latitude DECIMAL(10,7) NULL,
+  longitude DECIMAL(10,7) NULL,
   services TEXT NULL,
   images JSON NULL,
   status ENUM('PENDING','APPROVED','REJECTED') NOT NULL DEFAULT 'PENDING',

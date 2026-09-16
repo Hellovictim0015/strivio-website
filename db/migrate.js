@@ -31,6 +31,14 @@ async function main() {
     await conn.execute(`ALTER TABLE bookings ADD COLUMN persons INT NULL AFTER plan_name`);
     console.log("Added bookings.persons");
   }
+  if (!(await columnExists(conn, "partner_listings", "latitude"))) {
+    await conn.execute(`ALTER TABLE partner_listings ADD COLUMN latitude DECIMAL(10,7) NULL AFTER closing_time`);
+    console.log("Added partner_listings.latitude");
+  }
+  if (!(await columnExists(conn, "partner_listings", "longitude"))) {
+    await conn.execute(`ALTER TABLE partner_listings ADD COLUMN longitude DECIMAL(10,7) NULL AFTER latitude`);
+    console.log("Added partner_listings.longitude");
+  }
 
   const [fkRows] = await conn.execute(
     `SELECT COUNT(*) AS cnt FROM information_schema.TABLE_CONSTRAINTS

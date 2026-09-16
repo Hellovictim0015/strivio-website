@@ -25,7 +25,7 @@ export async function GET(request) {
 
   const listings = await query(
     `SELECT pl.id, pl.name, pl.description, pl.price, pl.price_period, pl.address, pl.city, pl.phone,
-            pl.opening_time, pl.closing_time, pl.images, pl.created_at,
+            pl.opening_time, pl.closing_time, pl.latitude, pl.longitude, pl.images, pl.created_at,
             c.id AS category_id, c.name AS category_name,
             p.business_name AS partner_name
      FROM partner_listings pl

@@ -4,6 +4,7 @@ import { getAuthFromCookieStore } from "@/lib/auth";
 import { query, queryOne } from "@/lib/db";
 import { saveUploadedImages } from "@/lib/upload";
 import { parsePlans, cheapestPlan } from "@/lib/plans";
+import { parseLatLng } from "@/lib/geo";
 
 async function requirePartner() {
   const cookieStore = await cookies();
@@ -65,6 +66,11 @@ export async function POST(request) {
     return Response.json({ error: plansError }, { status: 400 });
   }
 
+  const { latitude, longitude, error: latLngError } = parseLatLng(formData);
+  if (latLngError) {
+    return Response.json({ error: latLngError }, { status: 400 });
+  }
+
   const category = await queryOne("SELECT id FROM categories WHERE id = ? AND status = 'active'", [categoryId]);
   if (!category) {
     return Response.json({ error: "Invalid category" }, { status: 400 });
@@ -86,8 +92,8 @@ export async function POST(request) {
 
   const result = await query(
     `INSERT INTO partner_listings
-      (partner_id, category_id, name, description, price, price_period, address, city, phone, opening_time, closing_time, services, images, status, qr_token)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)`,
+      (partner_id, category_id, name, description, price, price_period, address, city, phone, opening_time, closing_time, latitude, longitude, services, images, status, qr_token)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)`,
     [
       auth.id,
       categoryId,
@@ -100,6 +106,8 @@ export async function POST(request) {
       phone,
       openingTime,
       closingTime,
+      latitude,
+      longitude,
       services,
       JSON.stringify(imageUrls),
       qrToken,

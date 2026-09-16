@@ -12,7 +12,9 @@ export default function CreateListing() {
   const [form, setForm] = useState({
     name: "", categoryId: "", description: "",
     address: "", city: "", phone: "", openingTime: "", closingTime: "", services: "",
+    latitude: "", longitude: "",
   });
+  const [locating, setLocating] = useState(false);
   const [plans, setPlans] = useState([newPlan()]);
   const [files, setFiles] = useState([]);
 
@@ -22,6 +24,25 @@ export default function CreateListing() {
 
   function update(key, value) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function useCurrentLocation() {
+    if (!navigator.geolocation) {
+      setError("Location is not supported by this browser");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        update("latitude", pos.coords.latitude.toFixed(7));
+        update("longitude", pos.coords.longitude.toFixed(7));
+        setLocating(false);
+      },
+      () => {
+        setError("Could not get your location — please enter it manually");
+        setLocating(false);
+      }
+    );
   }
 
   async function handleSubmit(e) {
@@ -92,6 +113,21 @@ export default function CreateListing() {
             <label className="text-[#0B1F33]/60 text-xs font-semibold mb-1.5 block">Address</label>
             <input value={form.address} onChange={(e) => update("address", e.target.value)}
               className="w-full px-4 py-2.5 text-sm bg-[#F5F7F3] rounded-xl border border-transparent focus:outline-none focus:border-[#83C52B]/40 text-[#0B1F33]" />
+          </div>
+
+          <div className="col-span-2">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-[#0B1F33]/60 text-xs font-semibold block">Location coordinates (optional — lets nearby users find this center)</label>
+              <button type="button" onClick={useCurrentLocation} disabled={locating} className="text-[#83C52B] text-xs font-bold hover:underline disabled:opacity-50">
+                {locating ? "Locating…" : "📍 Use my current location"}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <input type="number" step="0.0000001" min="-90" max="90" placeholder="Latitude, e.g. 12.9716" value={form.latitude} onChange={(e) => update("latitude", e.target.value)}
+                className="w-full px-4 py-2.5 text-sm bg-[#F5F7F3] rounded-xl border border-transparent focus:outline-none focus:border-[#83C52B]/40 text-[#0B1F33]" />
+              <input type="number" step="0.0000001" min="-180" max="180" placeholder="Longitude, e.g. 77.5946" value={form.longitude} onChange={(e) => update("longitude", e.target.value)}
+                className="w-full px-4 py-2.5 text-sm bg-[#F5F7F3] rounded-xl border border-transparent focus:outline-none focus:border-[#83C52B]/40 text-[#0B1F33]" />
+            </div>
           </div>
 
           <div>

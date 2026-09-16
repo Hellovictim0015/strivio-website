@@ -3,6 +3,7 @@ import { getAuthFromCookieStore } from "@/lib/auth";
 import { query, queryOne } from "@/lib/db";
 import { saveUploadedImages } from "@/lib/upload";
 import { parsePlans, cheapestPlan } from "@/lib/plans";
+import { parseLatLng } from "@/lib/geo";
 
 async function requirePartner() {
   const cookieStore = await cookies();
@@ -55,6 +56,11 @@ export async function PUT(request, { params }) {
     return Response.json({ error: plansError }, { status: 400 });
   }
 
+  const { latitude, longitude, error: latLngError } = parseLatLng(formData);
+  if (latLngError) {
+    return Response.json({ error: latLngError }, { status: 400 });
+  }
+
   const category = await queryOne("SELECT id FROM categories WHERE id = ?", [categoryId]);
   if (!category) return Response.json({ error: "Invalid category" }, { status: 400 });
 
@@ -76,9 +82,9 @@ export async function PUT(request, { params }) {
   await query(
     `UPDATE partner_listings SET
       name = ?, description = ?, category_id = ?, price = ?, price_period = ?, address = ?, city = ?,
-      phone = ?, opening_time = ?, closing_time = ?, services = ?, images = ?, status = 'PENDING', rejection_reason = NULL
+      phone = ?, opening_time = ?, closing_time = ?, latitude = ?, longitude = ?, services = ?, images = ?, status = 'PENDING', rejection_reason = NULL
      WHERE id = ?`,
-    [name, description, categoryId, cheapest.price, cheapest.period, address, city, phone, openingTime, closingTime, services, JSON.stringify(images), id]
+    [name, description, categoryId, cheapest.price, cheapest.period, address, city, phone, openingTime, closingTime, latitude, longitude, services, JSON.stringify(images), id]
   );
 
   // Wholesale-replace plans; any bookings referencing an old plan keep their
