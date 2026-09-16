@@ -36,6 +36,21 @@ yarn-error.log*
 # vercel
 .vercel
 
+# uploaded files (served from backend, not the frontend public/ folder)
+/uploads/*
+!/uploads/categories
+!/uploads/partners
+!/uploads/listings
+!/uploads/events
+/uploads/categories/*
+/uploads/partners/*
+/uploads/listings/*
+/uploads/events/*
+!/uploads/categories/.gitkeep
+!/uploads/partners/.gitkeep
+!/uploads/listings/.gitkeep
+!/uploads/events/.gitkeep
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
